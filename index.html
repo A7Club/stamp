@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>柒樂部遊樂園 - A7 🅟OINTS</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YJ9RJC2DRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-YJ9RJC2DRS');
+    </script>
+    
+    <!-- 引入核心庫 (新增 Noto Sans TC 字體) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- LINE LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'rounded': ['"M PLUS Rounded 1c"', 'sans-serif'] },
+                    colors: {
+                        macaron: { 
+                            pink: '#FFD1DC', 
+                            blue: '#B5EAD7', 
+                            sky: '#AEDFF7', 
+                            yellow: '#FFF5BA', 
+                            purple: '#E2D1F9', 
+                            mint: '#C7CEEA', 
+                            text: '#4A4A4A' 
+                        }
+                    },
+                    animation: {
+                        'bounce-pop': 'pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                        'float': 'float 3s ease-in-out infinite',
+                        'scan-fast': 'scanning 1.2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        pop: { '0%': { transform: 'scale(0.5)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } },
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5px)' } },
+                        scanning: { '0%': { top: '0%', opacity: '0' }, '10%': { opacity: '1' }, '90%': { opacity: '1' }, '100%': { top: '100%', opacity: '0' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'M PLUS Rounded 1c', sans-serif; color: #4A4A4A; }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border: 2px dashed rgba(255, 209, 220, 0.8); }
+        .active-scale:active { transform: scale(0.95); transition: transform 0.1s; }
+        
+        /* --- ⭐ 全局背景：日系文青漸層融合背景 --- */
+        .japanese-paper-bg {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FFFDF9; 
+            background-image: 
+                linear-gradient(135deg, rgba(255,209,220,0.3) 0%, rgba(255,245,186,0.3) 50%, rgba(174,223,247,0.3) 100%);
+            background-attachment: fixed;
+            background-size: 100% 100%;
+            color: #5C5454;
+        }
+        
+        /* --- 掃描器自訂樣式 --- */
+        .scanner-laser { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: #FF8C94; box-shadow: 0 0 12px #FF8C94; animation: scanning 2.5s ease-in-out infinite; z-index: 10; }
+        .scan-corner { position: absolute; width: 24px; height: 24px; border-color: #FF8C94; border-width: 4px; z-index: 20; border-radius: 4px; }
+        .corner-tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+        .corner-tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+        .corner-bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+        .corner-br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+        #qr-shaded-region > div { display: none !important; }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center japanese-paper-bg">
+
+    <div id="loading" class="fixed inset-0 japanese-paper-bg z-[100] flex flex-col items-center justify-center px-6 transition-opacity duration-500">
+        <!-- 玻璃擬態卡片 -->
+        <div class="glass-card w-full max-w-sm rounded-[2.5rem] p-8 flex flex-col items-center justify-center shadow-2xl relative border-2 border-macaron-purple bg-white/80">
+            
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-3/4 h-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSIyMCI+PHBvbHlnb24gcG9pbnRzPSIwLDExIDIwLDAgNDAsMTEgMjAsMjIiIGZpbGw9IiNFMkQxRjkiLz48L3N2Zz4=')] bg-repeat-x opacity-60"></div>
+
+            <div class="relative flex justify-center items-center mb-10 mt-4">
+                <div id="loading-ping" class="absolute w-28 h-28 bg-[#9B89B3]/20 rounded-full animate-ping"></div>
+                <div id="loading-spin" class="absolute w-36 h-36 border-[3px] border-dashed border-[#9B89B3]/50 rounded-full animate-[spin_4s_linear_infinite]"></div>
+                
+                <div class="relative w-24 h-16 bg-white rounded-xl shadow-lg border-[3px] border-[#6B5B95] flex items-center justify-center z-10 overflow-hidden bg-gradient-to-br from-white to-[#F5F0FA]">
+                    <div class="absolute -left-2.5 w-5 h-5 bg-[#E2D1F9] rounded-full border-r-[3px] border-[#6B5B95]"></div>
+                    <div class="absolute -right-2.5 w-5 h-5 bg-[#AEDFF7] rounded-full border-l-[3px] border-[#6B5B95]"></div>
+                    
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6B5B95" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-80">
+                        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path>
+                        <path d="M13 5v2"></path><path d="M13 17v2"></path><path d="M13 11v2"></path>
+                    </svg>
+                    
+                    <div class="absolute top-0 left-0 w-full h-[3px] bg-macaron-sky shadow-[0_0_12px_#AEDFF7] animate-scan-fast"></div>
+                </div>
+            </div>
+
+            <h2 class="text-xl font-extrabold text-[#5C5454] tracking-widest mb-1 drop-shadow-sm text-center">A7 🅟OINTS</h2>
+            
+            <div class="h-6 flex items-center justify-center mb-6">
+                <p id="loading-text" class="text-[13px] text-[#5C5454] font-bold tracking-wider animate-pulse">啟動驗票閘門...</p>
+            </div>
+
+            <div id="loading-progress-container" class="w-full h-3.5 bg-gray-100/80 rounded-full overflow-hidden shadow-inner mb-2 relative border border-[#E2D1F9]">
+                <div id="loading-progress" class="absolute top-0 left-0 h-full bg-gradient-to-r from-[#8A79AF] to-[#AEDFF7] w-[5%] transition-all duration-300 ease-out"></div>
+            </div>
+
+            <div id="error-container" class="hidden flex-col items-center w-full mt-4 z-20">
+                <p id="error-display" class="text-[12px] text-[#B35C66] font-bold mb-4 text-center leading-relaxed bg-[#FFF0F5] p-5 rounded-2xl border border-[#FFD1DC] whitespace-pre-line w-full shadow-sm tracking-wide"></p>
+                <div id="setup-hint" class="hidden w-full p-3 bg-white border-2 border-dashed border-[#FFD1DC] rounded-xl text-center mb-4 shadow-sm">
+                     <p class="text-[10px] text-gray-500 mb-1">💡 開發者提示</p>
+                     <p class="text-[11px] text-[#4A4A4A]">請替換程式碼中的 <b>"您的_LIFF_ID"</b></p>
+                </div>
+                <button id="retry-btn" onclick="location.reload()" class="px-6 py-2.5 bg-white border border-macaron-purple text-[#6B5B95] rounded-full font-bold text-xs shadow-sm active-scale flex items-center gap-2">
+                    重新載入
+                </button>
+            </div>
+
+            <!-- ⭐ 凸顯社群連結 -->
+            <div class="mt-6 flex flex-col items-center justify-center relative z-20">
+                <p class="text-[10px] text-gray-400 font-medium mb-1.5">活動由以下社群串聯</p>
+                <a href="https://line.me/ti/g2/GBG7FOYaVN8Ek3Zn3wAEjfAumASOabXHP6hLzg" target="_blank" class="active-scale px-5 py-2.5 bg-[#6B5B95] rounded-full shadow-[0_4px_12px_rgba(107,91,149,0.3)] flex items-center gap-2 hover:bg-[#5A4A84] transition-colors border border-[#5A4A84]">
+                    <i data-lucide="link" class="w-4 h-4 text-white"></i>
+                    <span class="text-[12px] font-black text-white tracking-widest">A7ᴄʟᴜʙ 柒楽部</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自訂對話框/確認框 -->
+    <div id="custom-alert-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden flex items-center justify-center px-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="custom-alert-content">
+            <div class="text-center">
+                <div id="custom-alert-icon" class="text-4xl mb-3">🔔</div>
+                <h3 id="custom-alert-title" class="text-lg font-bold text-[#4A4A4A] mb-2">提示</h3>
+                <p id="custom-alert-message" class="text-sm text-gray-600 mb-6 whitespace-pre-line leading-relaxed"></p>
+                <div class="flex gap-3 justify-center" id="custom-alert-buttons"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-[400px] min-h-screen relative shadow-2xl overflow-hidden flex flex-col bg-white/30 backdrop-blur-[2px]">
+        
+        <header class="pt-6 pb-2 px-5 relative z-10">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-[11px] font-bold text-[#6B5B95] flex items-center gap-1">
+                        <i data-lucide="ticket" class="w-3.5 h-3.5"></i> 柒樂部 LINE 社群專屬
+                    </h2>
+                    <h1 class="text-xl font-extrabold text-[#4A4A4A] mt-0.5 animate-float tracking-tight">
+                        遊樂園 A7 🅟OINTS 🎡
+                    </h1>
+                </div>
+                <div class="w-10 h-10 rounded-full border-[3px] border-white shadow-sm bg-macaron-yellow overflow-hidden ring-1 ring-white/50">
+                    <img id="user-avatar" src="https://api.dicebear.com/7.x/notionists/svg?seed=Lucky" alt="User" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 px-4 pb-20 overflow-y-auto relative z-10 flex flex-col gap-3.5">
+            
+            <div class="glass-card rounded-[1.5rem] p-4 shadow-md relative overflow-hidden mt-1">
+                <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-[85%] h-4 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSIyMCI+PHBvbHlnb24gcG9pbnRzPSIwLDExIDIwLDAgNDAsMTEgMjAsMjIiIGZpbGw9IiNGRkQxREMiLz48L3N2Zz4=')] bg-repeat-x opacity-60"></div>
+                
+                <div class="flex justify-between items-end mb-5 mt-1 px-1">
+                    <p class="text-[11px] font-bold text-[#6B5B95] flex items-center gap-1"><i data-lucide="award" class="w-3.5 h-3.5"></i> 集點進度</p>
+                    <p id="points-status" class="text-sm font-bold text-[#4A4A4A] leading-none">讀取中...</p>
+                </div>
+                
+                <!-- ⭐ 精準控制寬度與間距，強制分為完美兩排 (4+3 排版) -->
+                <div id="stamp-grid" class="flex flex-wrap justify-center gap-y-5 gap-x-3 w-full max-w-[320px] mx-auto pb-2"></div>
+            </div>
+
+            <div>
+                <h3 class="text-xs font-bold text-[#6B5B95] mb-2 px-1 flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 獎品換領處
+                </h3>
+                <div id="prize-list" class="flex flex-col gap-2.5"></div>
+            </div>
+
+            <!-- ⭐ 授權店家專區 -->
+            <div id="admin-panel" class="hidden">
+                <h3 class="text-xs font-bold text-[#6B5B95] mb-2 px-1 flex items-center gap-1.5">
+                    <i data-lucide="store" class="w-3.5 h-3.5"></i> 授權店家專區
+                </h3>
+                <div class="bg-white/80 backdrop-blur-md rounded-[1.5rem] p-3.5 border-2 border-dashed border-[#E2D1F9] shadow-sm relative overflow-hidden">
+                    <div class="relative z-10 flex flex-col gap-3">
+                        <div>
+                            <p class="text-[10px] text-gray-500 font-bold mb-0.5">登入店舖</p>
+                            <p class="text-base font-black text-[#6B5B95] drop-shadow-sm leading-tight" id="admin-shop-name"></p>
+                        </div>
+                        
+                        <!-- ⭐ 改為三個內容的網格排版 -->
+                        <div class="grid grid-cols-3 gap-2 items-stretch">
+                            <!-- 1. 已發送點數 -->
+                            <div class="bg-gray-50 rounded-xl p-2 border border-gray-100 flex flex-col justify-center items-center text-center">
+                                <p class="text-[9px] text-gray-500 font-bold mb-1">發送點數</p>
+                                <p class="text-lg font-black text-[#FF8C94] leading-none"><span id="admin-issued-stamps">0</span><span class="text-[9px] font-bold text-gray-500 ml-0.5">點</span></p>
+                            </div>
+
+                            <!-- 2. 已兌換數量 -->
+                            <div class="bg-gray-50 rounded-xl p-2 border border-gray-100 flex flex-col justify-center items-center text-center">
+                                <p class="text-[9px] text-gray-500 font-bold mb-1">已兌換量</p>
+                                <p class="text-lg font-black text-[#6BAED6] leading-none"><span id="admin-redeemed-count">0</span><span class="text-[9px] font-bold text-gray-500 ml-0.5">次</span></p>
+                            </div>
+
+                            <!-- 3. 顯示 QR Code 按鈕 -->
+                            <button onclick="showShopQrCode()" class="bg-white border border-[#E2D1F9] shadow-sm rounded-xl p-2 flex flex-col items-center justify-center cursor-pointer active-scale transition-transform">
+                                <div class="w-6 h-6 bg-macaron-purple/20 rounded-full flex items-center justify-center mb-1">
+                                    <i data-lucide="qr-code" class="w-3 h-3 text-[#6B5B95]"></i>
+                                </div>
+                                <p class="text-[9px] font-bold text-[#4A4A4A]">專屬 QR</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-1 mb-2">
+                <button id="start-scan" class="active-scale w-full bg-gradient-to-r from-[#FFD1DC] to-[#E2D1F9] text-[#4A4A4A] font-extrabold text-base py-3.5 rounded-2xl shadow-[0_4px_12px_rgba(255,209,220,0.5)] flex justify-center items-center gap-2">
+                    <i data-lucide="maximize" class="w-5 h-5"></i> 開啟相機 (集點 / 核銷)
+                </button>
+            </div>
+
+        </main>
+
+        <nav class="absolute bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-100 px-8 py-2 pb-5 flex justify-between z-20">
+            <button class="flex flex-col items-center gap-0.5 text-[#FF8C94]">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold text-[#FF8C94]">首頁</span>
+            </button>
+            <button class="flex flex-col items-center gap-0.5 text-gray-400 active-scale transition-all" onclick="openMapModal()">
+                <i data-lucide="map-pinned" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold text-gray-400">地圖</span>
+            </button>
+            <button class="flex flex-col items-center gap-0.5 text-gray-400 active-scale transition-all" onclick="openHistoryModal()">
+                <i data-lucide="scroll-text" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold text-gray-400">紀錄</span>
+            </button>
+        </nav>
+
+        <div id="shop-qr-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70] hidden flex items-center justify-center px-4">
+            <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="shop-qr-content">
+                <div class="text-center">
+                    <div class="text-5xl mb-4">🏪</div>
+                    <h3 class="text-xl font-bold text-[#4A4A4A] mb-2">本店集點 QR Code</h3>
+                    <p class="text-xs text-gray-500 mb-6 font-medium">請讓客人掃描此條碼來集點</p>
+                    <div class="bg-gray-50 p-4 rounded-2xl border-2 border-dashed border-[#E2D1F9] mb-6 flex justify-center items-center aspect-square mx-auto w-[220px]">
+                        <img id="shop-qr-img" src="" alt="Shop QR Code" class="w-[180px] h-[180px] object-contain">
+                    </div>
+                    <button onclick="closeShopQrModal()" class="w-full bg-macaron-sky text-[#4A4A4A] font-extrabold py-3 rounded-2xl shadow-sm active-scale">完成並關閉</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="history-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] hidden flex flex-col items-center justify-end sm:justify-center p-0 sm:p-6 transition-all duration-300">
+            <div class="w-full max-w-[400px] bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transform translate-y-full transition-transform duration-300" id="history-modal-content">
+                <div class="bg-macaron-yellow/60 p-5 flex justify-between items-center text-[#6B5B95] font-bold shadow-sm z-10">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="scroll-text" class="w-5 h-5 text-[#4A4A4A]"></i>
+                        <span class="text-[#4A4A4A]">個人歷史紀錄</span>
+                    </div>
+                    <button onclick="closeHistoryModal()" class="bg-white/80 rounded-full p-1.5 active-scale"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
+                </div>
+                <div class="p-5 overflow-y-auto flex-1 bg-gray-50/50 flex flex-col gap-3" id="history-list-container">
+                    <div class="flex items-center justify-center py-10"><div class="animate-spin text-2xl">⏳</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="map-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] hidden flex flex-col items-center justify-end sm:justify-center p-0 sm:p-6 transition-all duration-300">
+            <div class="w-full max-w-[400px] bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transform translate-y-full transition-transform duration-300" id="map-modal-content">
+                <div class="bg-macaron-sky/60 p-5 flex justify-between items-center text-[#6B5B95] font-bold shadow-sm z-10">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="map-pinned" class="w-5 h-5 text-[#4A4A4A]"></i>
+                        <span class="text-[#4A4A4A]">合作店家一覽</span>
+                    </div>
+                    <button onclick="closeMapModal()" class="bg-white/80 rounded-full p-1.5 active-scale"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
+                </div>
+                <div class="p-5 overflow-y-auto flex-1 bg-gray-50/50 flex flex-col gap-3" id="shop-list-container">
+                    <div class="flex items-center justify-center py-10"><div class="animate-spin text-2xl">⏳</div></div>
+                </div>
+                <div class="p-4 bg-white border-t border-gray-100 z-10 shrink-0">
+                    <a href="https://line.me/ti/g2/GBG7FOYaVN8Ek3Zn3wAEjfAumASOabXHP6hLzg" target="_blank" class="w-full bg-macaron-yellow text-[#6B5B95] font-bold py-3 rounded-2xl shadow-sm active-scale flex items-center justify-center gap-2 transition-transform">
+                        <i data-lucide="store" class="w-5 h-5"></i>
+                        有興趣加入合作店家？
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="scanner-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] hidden flex flex-col items-center justify-center p-6 text-white">
+            <div class="w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-2xl relative">
+                <div class="bg-macaron-pink/50 p-4 flex justify-between items-center text-[#6B5B95] font-bold">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="qr-code" class="w-5 h-5"></i>
+                        <span>正在搜尋 QR Code</span>
+                    </div>
+                    <button onclick="stopScanning()" class="bg-white/80 rounded-full p-1"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+                </div>
+                <div class="relative aspect-square w-full bg-black overflow-hidden">
+                    <div id="reader" class="w-full h-full"></div>
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div class="w-[260px] h-[260px] relative">
+                            <div class="scan-corner corner-tl"></div>
+                            <div class="scan-corner corner-tr"></div>
+                            <div class="scan-corner corner-bl"></div>
+                            <div class="scan-corner corner-br"></div>
+                            <div class="scanner-laser"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5 bg-white text-center">
+                    <p class="text-xs text-gray-500 font-medium leading-relaxed">
+                        👉 <b>集點</b>：請掃描店家正方形 QR Code<br>
+                        👉 <b>店家核銷</b>：請掃描用戶兌換畫面
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="physical-qr-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70] hidden flex items-center justify-center px-4">
+            <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="physical-qr-content">
+                <div class="text-center">
+                    <div class="text-5xl mb-4" id="physical-qr-icon">🍠</div>
+                    <h3 class="text-xl font-bold text-[#4A4A4A] mb-2">兌換 <span id="physical-qr-prize" class="text-[#FF8C94]"></span></h3>
+                    <p class="text-xs text-gray-500 mb-6 font-medium">請將此畫面出示給店家掃描<br>掃描成功後即完成扣點與領取</p>
+                    <div class="bg-gray-50 p-4 rounded-2xl border-2 border-dashed border-[#FFD1DC] mb-6 flex justify-center items-center aspect-square mx-auto w-[220px]">
+                        <img id="physical-qr-img" src="" alt="Redeem QR Code" class="w-[180px] h-[180px] object-contain">
+                    </div>
+                    <button onclick="closePhysicalQrModal()" class="w-full bg-macaron-sky text-[#4A4A4A] font-extrabold py-3 rounded-2xl shadow-sm active-scale">完成並關閉</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="redeem-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70] hidden flex items-center justify-center px-4">
+            <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="redeem-modal-content">
+                <div class="text-center">
+                    <div class="text-6xl mb-4 animate-bounce" id="redeem-modal-icon">🎁</div>
+                    <h3 class="text-xl font-bold text-[#4A4A4A] mb-2">兌換成功！</h3>
+                    <p id="redeem-msg" class="text-sm text-gray-600 mb-6 leading-relaxed"></p>
+                    <div id="redeem-code-box" class="bg-gray-50 p-4 rounded-2xl border-2 border-dashed border-[#B5EAD7] mb-6 flex justify-between items-center hidden">
+                        <span class="font-mono font-bold text-lg tracking-widest text-[#4A4A4A]" id="redemption-code"></span>
+                        <button onclick="copyCode()" class="text-macaron-blue p-2 active-scale"><i data-lucide="copy"></i></button>
+                    </div>
+                    <button onclick="closeModal()" class="w-full bg-macaron-sky text-[#4A4A4A] font-extrabold py-3 rounded-2xl shadow-sm active-scale">太棒了，繼續玩！</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzC8FV-VwFLwjv7N9jyn4xy8IrCMjZy24-xdCT9rVgpRP5bXSudababRhaAkQloVmU2LA/exec";
+        const LIFF_ID = "2009930258-GNJpigEk"; 
+        const MAX_STAMPS = 7; 
+        
+        let currentPoints = 0;
+        let userData = { userId: null, displayName: '遊客', isAdmin: false, shopName: '' };
+        let html5QrCode;
+        let globalShopList = []; 
+        let globalHistoryList = []; 
+        
+        let adminShopCode = '';
+        let shopIssuedStamps = 0;
+        let shopRedeemedCount = 0; // ⭐ 新增：已兌換數量變數
+
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        function getPrizeIcon(prizeName, prizeType) {
+            if (prizeName.includes('地瓜')) return '🍠';
+            return prizeType === '電子' ? '🎟️' : '🎁';
+        }
+
+        function updateLoadingState(percent, text) {
+            const bar = document.getElementById('loading-progress');
+            const textEl = document.getElementById('loading-text');
+            if(bar) bar.style.width = percent + '%';
+            if(textEl && text) textEl.innerText = text;
+        }
+
+        function showLoadingScreen(text = "處理中...") {
+            const loadingEl = document.getElementById('loading');
+            loadingEl.style.display = 'flex';
+            
+            document.getElementById('loading-progress-container').classList.remove('hidden');
+            document.getElementById('loading-ping').classList.remove('hidden');
+            document.getElementById('loading-spin').classList.remove('hidden');
+            document.getElementById('error-container').classList.add('hidden');
+            document.getElementById('loading-text').classList.remove('text-[#B35C66]');
+            
+            void loadingEl.offsetWidth; 
+            loadingEl.style.opacity = '1';
+            updateLoadingState(60, text);
+        }
+
+        function showError(msg, title = "連線發生錯誤") {
+            document.getElementById('loading-progress-container').classList.add('hidden');
+            document.getElementById('loading-ping').classList.add('hidden');
+            document.getElementById('loading-spin').classList.add('hidden');
+            
+            const textEl = document.getElementById('loading-text');
+            textEl.innerText = title;
+            textEl.classList.add('text-[#B35C66]');
+            textEl.classList.remove('animate-pulse');
+
+            document.getElementById('error-container').classList.remove('hidden');
+            document.getElementById('error-display').innerHTML = msg;
+        }
+
+        async function init() {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (!isMobile) {
+                const desktopMsg = `請由 A7ᴄʟᴜʙ 柒楽部 LINE社群內點擊連結，<br>或由合作店家專屬連結開啟集點哦！`;
+                showError(desktopMsg, "請使用 LINE社群 開啟");
+                document.getElementById('retry-btn').classList.add('hidden');
+                return;
+            }
+
+            updateLoadingState(10, "啟動驗票閘門...");
+            await sleep(400);
+
+            try {
+                if (LIFF_ID === "您的_LIFF_ID" || LIFF_ID === "") {
+                    updateLoadingState(0, "系統設定異常");
+                    showError("尚未完成 LIFF ID 設定，無法連線。");
+                    document.getElementById('setup-hint').classList.remove('hidden');
+                    return;
+                }
+                
+                updateLoadingState(25, "建立安全連線...");
+                await sleep(300);
+                
+                updateLoadingState(40, "呼叫 LINE 快速通關...");
+                await liff.init({ liffId: LIFF_ID });
+
+                if (!liff.isLoggedIn()) {
+                    updateLoadingState(45, "等待遊客授權...");
+                    liff.login(); 
+                    return;
+                }
+                
+                updateLoadingState(55, "掃描護照身分...");
+                const profile = await liff.getProfile();
+                userData.userId = profile.userId;
+                userData.displayName = profile.displayName;
+                document.getElementById('user-avatar').src = profile.pictureUrl || document.getElementById('user-avatar').src;
+
+                await syncData(true);
+            } catch (err) {
+                console.error("LIFF/Init Error:", err);
+                let errorMsg = "請從 LINE App 內開啟此網址進行驗證。";
+                if (err.message.includes("channel not found")) {
+                    errorMsg = "安全驗證失敗：無效的 LIFF ID。請確認開發者後台設定。";
+                }
+                showError(errorMsg);
+            }
+        }
+
+        async function syncData(isInit = false) {
+            if (!userData.userId) return;
+            
+            if (!isInit) {
+                showLoadingScreen("同步最新遊玩紀錄...");
+            } else {
+                updateLoadingState(70, "核對入園名單...");
+                await sleep(300);
+                updateLoadingState(85, "載入集點紀錄...");
+            }
+            
+            const result = await callGAS({ 
+                action: 'getPoints', 
+                userId: userData.userId, 
+                displayName: userData.displayName 
+            });
+            
+            if (result.status === 'success') {
+                currentPoints = result.points;
+                globalShopList = result.shops || []; 
+                globalHistoryList = result.history || []; 
+                
+                userData.isAdmin = !!result.isAdmin; 
+                userData.shopName = result.shopName || ''; 
+                
+                adminShopCode = result.adminShopCode || '';
+                shopIssuedStamps = result.shopIssuedStamps || 0;
+                shopRedeemedCount = result.shopRedeemedCount || 0; // ⭐ 從後端接收兌換數量
+
+                renderUI(result.prizes || []);
+                renderAdminPanel(); 
+                renderMapShops(); 
+                renderHistoryList(); 
+                
+                if (isInit) {
+                    updateLoadingState(100, "驗票完成開啟集點🎉");
+                    await sleep(600); 
+                }
+                
+                const loadingEl = document.getElementById('loading');
+                loadingEl.style.opacity = '0';
+                setTimeout(() => { loadingEl.style.display = 'none'; }, 400);
+                
+                if(result.isNewUser && isInit) {
+                    setTimeout(() => showCustomAlert("歡迎加入柒樂部！已贈送您入園禮 1 點！", "新朋友加入", "🎉"), 500);
+                }
+
+            } else {
+                showError(result.message);
+            }
+        }
+
+        async function callGAS(payload) {
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: "POST", mode: "cors", redirect: "follow",
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error("網路請求失敗");
+                return await response.json();
+            } catch (e) {
+                return { status: "error", message: "無法連線至雲端資料庫，請檢查網路連線。" };
+            }
+        }
+
+        function showCustomAlert(message, title = "提示", icon = "🎡") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-alert-modal');
+                const content = document.getElementById('custom-alert-content');
+                
+                document.getElementById('custom-alert-title').innerText = title;
+                document.getElementById('custom-alert-message').innerText = message;
+                document.getElementById('custom-alert-icon').innerText = icon;
+                
+                const btnContainer = document.getElementById('custom-alert-buttons');
+                btnContainer.innerHTML = '';
+                
+                const okBtn = document.createElement('button');
+                okBtn.className = 'w-full bg-macaron-sky text-[#4A4A4A] font-extrabold py-3 rounded-2xl shadow-sm active-scale';
+                okBtn.innerText = '好的';
+                okBtn.onclick = () => { closeCustomAlert(); resolve(true); };
+                btnContainer.appendChild(okBtn);
+                
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.replace('scale-95', 'scale-100');
+                    content.classList.replace('opacity-0', 'opacity-100');
+                }, 10);
+            });
+        }
+
+        function showCustomConfirm(message, title = "確認動作", icon = "❓") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-alert-modal');
+                const content = document.getElementById('custom-alert-content');
+                
+                document.getElementById('custom-alert-title').innerText = title;
+                document.getElementById('custom-alert-message').innerText = message;
+                document.getElementById('custom-alert-icon').innerText = icon;
+                
+                const btnContainer = document.getElementById('custom-alert-buttons');
+                btnContainer.innerHTML = '';
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'w-1/2 bg-gray-100 text-gray-500 font-bold py-3 rounded-2xl active-scale';
+                cancelBtn.innerText = '取消';
+                cancelBtn.onclick = () => { closeCustomAlert(); resolve(false); };
+                
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'w-1/2 bg-macaron-sky text-[#4A4A4A] font-extrabold py-3 rounded-2xl shadow-sm active-scale';
+                confirmBtn.innerText = '確定';
+                confirmBtn.onclick = () => { closeCustomAlert(); resolve(true); };
+                
+                btnContainer.appendChild(cancelBtn);
+                btnContainer.appendChild(confirmBtn);
+                
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.replace('scale-95', 'scale-100');
+                    content.classList.replace('opacity-0', 'opacity-100');
+                }, 10);
+            });
+        }
+
+        function closeCustomAlert() {
+            const modal = document.getElementById('custom-alert-modal');
+            const content = document.getElementById('custom-alert-content');
+            content.classList.replace('scale-100', 'scale-95');
+            content.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // ⭐ UI 渲染縮小空間優化、分為兩排、放大點數
+        function renderUI(prizes = []) {
+            const grid = document.getElementById('stamp-grid');
+            const stampIcons = ['🎠', '🎡', '🎪', '🎢', '🎫', '🍿', '🎈'];
+            grid.innerHTML = '';
+            
+            const displayPoints = currentPoints % MAX_STAMPS === 0 && currentPoints > 0 ? MAX_STAMPS : currentPoints % MAX_STAMPS;
+            
+            // ⭐ 放大集點圈圈 (68px) 並加入 shrink-0 防止被擠壓
+            for (let i = 0; i < MAX_STAMPS; i++) {
+                const slot = document.createElement('div');
+                if (i < displayPoints) {
+                    slot.className = 'w-[68px] h-[68px] shrink-0 rounded-full flex items-center justify-center relative bg-white shadow-md border-[3px] border-[#FFD1DC]';
+                    slot.innerHTML = `<span class="text-4xl animate-bounce-pop">${stampIcons[i]}</span>`;
+                } else {
+                    slot.className = 'w-[68px] h-[68px] shrink-0 rounded-full flex items-center justify-center relative transition-all border-2 border-dashed border-gray-300 bg-gray-50/80';
+                    slot.innerHTML = `<span class="text-gray-300 font-black text-[22px]">${i + 1}</span>`;
+                }
+                grid.appendChild(slot);
+            }
+
+            document.getElementById('points-status').innerHTML = `擁有 <span class="text-[#FF8C94] text-base font-black">${currentPoints}</span> 點`;
+
+            const listEl = document.getElementById('prize-list');
+            listEl.innerHTML = '';
+            
+            if (prizes.length === 0) {
+                listEl.innerHTML = '<p class="text-center text-[11px] text-gray-300 py-4">獎品補貨中，敬請期待！</p>';
+                return;
+            }
+
+            prizes.forEach(prize => {
+                const isOutOfStock = prize.type === '實體' && parseInt(prize.stock) <= 0;
+                const canRedeem = currentPoints >= prize.points && !isOutOfStock;
+                const displayIcon = getPrizeIcon(prize.name, prize.type); 
+                
+                const item = document.createElement('div');
+                item.className = `flex justify-between items-center p-3 rounded-xl border transition-all ${canRedeem ? 'bg-white border-macaron-sky shadow-sm' : 'bg-gray-100/30 border-gray-200 opacity-60'}`;
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-macaron-yellow/20 flex items-center justify-center text-sm">${displayIcon}</div>
+                        <div>
+                            <p class="font-bold text-[#4A4A4A] text-[13px] leading-tight">${prize.name}</p>
+                            <p class="text-[9px] text-gray-400 font-medium mt-0.5">${prize.points} 點 • ${prize.type}獎勵 ${isOutOfStock ? '(庫存不足)' : ''}</p>
+                        </div>
+                    </div>
+                    <button onclick="handleRedeem('${prize.name}', '${prize.type}')" ${!canRedeem ? 'disabled' : ''} 
+                        class="px-4 py-1.5 rounded-lg font-bold text-[11px] transition-colors ${canRedeem ? 'bg-macaron-sky text-[#4A4A4A] active-scale' : 'bg-gray-200 text-gray-400'}">
+                        ${isOutOfStock ? '兌換完畢' : '兌換'}
+                    </button>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function renderAdminPanel() {
+            const panel = document.getElementById('admin-panel');
+            if (userData.isAdmin) {
+                panel.classList.remove('hidden');
+                document.getElementById('admin-shop-name').innerText = userData.shopName;
+                document.getElementById('admin-issued-stamps').innerText = shopIssuedStamps;
+                document.getElementById('admin-redeemed-count').innerText = shopRedeemedCount; // ⭐ 渲染已兌換數量
+            } else {
+                panel.classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        function showShopQrCode() {
+            if (!adminShopCode) return;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&color=6B5B95&data=${encodeURIComponent(adminShopCode)}`;
+            document.getElementById('shop-qr-img').src = qrUrl;
+            
+            const modal = document.getElementById('shop-qr-modal');
+            const content = document.getElementById('shop-qr-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.replace('scale-95', 'scale-100');
+                content.classList.replace('opacity-0', 'opacity-100');
+            }, 10);
+        }
+
+        function closeShopQrModal() {
+            const modal = document.getElementById('shop-qr-modal');
+            const content = document.getElementById('shop-qr-content');
+            content.classList.replace('scale-100', 'scale-95');
+            content.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById('history-list-container');
+            container.innerHTML = '';
+
+            if (globalHistoryList.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 opacity-50">
+                        <i data-lucide="file-question" class="w-12 h-12 text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-500 font-bold">目前尚無任何紀錄</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            globalHistoryList.forEach(item => {
+                const isStamp = item.type === 'stamp';
+                const icon = isStamp ? '🎈' : getPrizeIcon(item.prizeName, '實體'); 
+                const title = isStamp ? '集點成功' : '兌換獎品';
+                const detail = isStamp ? `於 ${item.shopName} 集點` : `兌換 ${item.prizeName}`;
+                const pointChange = isStamp ? '+1 點' : `-${item.points} 點`;
+                const pointColorClass = isStamp ? 'text-macaron-blue' : 'text-[#FF8C94]';
+                
+                const d = new Date(item.time);
+                const dateStr = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+                const el = document.createElement('div');
+                el.className = 'bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between';
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-xl shrink-0">${icon}</div>
+                        <div>
+                            <h4 class="font-bold text-[#4A4A4A] text-sm">${title}</h4>
+                            <p class="text-[11px] text-gray-500 mt-0.5">${detail}</p>
+                            <p class="text-[10px] text-gray-400 mt-0.5">${dateStr}</p>
+                        </div>
+                    </div>
+                    <div class="font-black text-sm ${pointColorClass}">${pointChange}</div>
+                `;
+                container.appendChild(el);
+            });
+            lucide.createIcons();
+        }
+
+        function renderMapShops() {
+            const listContainer = document.getElementById('shop-list-container');
+            listContainer.innerHTML = '';
+
+            if (globalShopList.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 opacity-50">
+                        <i data-lucide="map-x" class="w-12 h-12 text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-500 font-bold">目前尚無店家地圖資訊</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            globalShopList.forEach(shop => {
+                const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.address)}`;
+                const item = document.createElement('div');
+                item.className = 'bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex justify-between items-center';
+                item.innerHTML = `
+                    <div class="flex-1 pr-3">
+                        <h4 class="font-bold text-[#4A4A4A] text-sm">${shop.name}</h4>
+                        <p class="text-[11px] text-gray-500 mt-1.5 flex items-start gap-1">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 mt-0.5 shrink-0 text-macaron-sky"></i>
+                            <span class="leading-relaxed text-left">${shop.address}</span>
+                        </p>
+                    </div>
+                    <a href="${mapLink}" target="_blank" class="w-10 h-10 bg-macaron-sky/20 text-[#6B5B95] rounded-full flex items-center justify-center shrink-0 active-scale transition-all">
+                        <i data-lucide="navigation" class="w-4 h-4"></i>
+                    </a>
+                `;
+                listContainer.appendChild(item);
+            });
+            lucide.createIcons();
+        }
+
+        function openHistoryModal() {
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => content.classList.remove('translate-y-full'), 10);
+        }
+
+        function closeHistoryModal() {
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-modal-content');
+            content.classList.add('translate-y-full');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function openMapModal() {
+            const modal = document.getElementById('map-modal');
+            const content = document.getElementById('map-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => content.classList.remove('translate-y-full'), 10);
+        }
+
+        function closeMapModal() {
+            const modal = document.getElementById('map-modal');
+            const content = document.getElementById('map-modal-content');
+            content.classList.add('translate-y-full');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        async function handleRedeem(prizeName, prizeType) {
+            const displayIcon = getPrizeIcon(prizeName, prizeType); 
+
+            if (prizeType === '實體') {
+                const qrData = `REDEEM:::${userData.userId}:::${userData.displayName}:::${prizeName}`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&color=6B5B95&data=${encodeURIComponent(qrData)}`;
+                document.getElementById('physical-qr-img').src = qrUrl;
+                document.getElementById('physical-qr-prize').innerText = prizeName;
+                document.getElementById('physical-qr-icon').innerText = displayIcon; 
+
+                const modal = document.getElementById('physical-qr-modal');
+                const content = document.getElementById('physical-qr-content');
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.replace('scale-95', 'scale-100');
+                    content.classList.replace('opacity-0', 'opacity-100');
+                }, 10);
+                return;
+            }
+
+            const confirmed = await showCustomConfirm(`確定要兌換「${prizeName}」嗎？`, "兌換確認", displayIcon);
+            if (!confirmed) return;
+
+            showLoadingScreen("兌換處理中...");
+            
+            const result = await callGAS({ action: 'redeem', userId: userData.userId, displayName: userData.displayName, prizeName });
+            
+            if (result.status === 'success') {
+                const modal = document.getElementById('redeem-modal');
+                const content = document.getElementById('redeem-modal-content');
+                document.getElementById('redeem-modal-icon').innerText = displayIcon; 
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.replace('scale-95', 'scale-100');
+                    content.classList.replace('opacity-0', 'opacity-100');
+                }, 10);
+                document.getElementById('redeem-msg').innerText = `恭喜獲得電子序號！您可以直接複製：`;
+                document.getElementById('redeem-code-box').classList.remove('hidden');
+                document.getElementById('redemption-code').innerText = result.code;
+                await syncData();
+            } else {
+                showError(result.message);
+            }
+        }
+
+        async function closePhysicalQrModal() {
+            const content = document.getElementById('physical-qr-content');
+            content.classList.replace('scale-100', 'scale-95');
+            content.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => document.getElementById('physical-qr-modal').classList.add('hidden'), 300);
+            await syncData();
+        }
+
+        async function handleAdminRedeem(text) {
+            if (html5QrCode) await html5QrCode.stop().catch(e => console.log(e));
+            document.getElementById('scanner-modal').classList.add('hidden');
+            
+            if (!userData.isAdmin) {
+                showCustomAlert("此功能僅限「柒樂部授權店家」使用，一般用戶無法執行核銷作業哦！", "權限不足", "🚫");
+                return;
+            }
+
+            const parts = text.split(":::");
+            if (parts.length !== 4) return;
+            const [prefix, targetUserId, targetDisplayName, targetPrizeName] = parts;
+            const displayIcon = getPrizeIcon(targetPrizeName, '實體'); 
+
+            const confirmed = await showCustomConfirm(
+                `【${userData.shopName} 核銷確認】\n確定要為「${targetDisplayName}」核銷實體獎品「${targetPrizeName}」嗎？\n\n確認後將自動扣除該用戶之集點點數。`, 
+                "店家核銷確認", 
+                displayIcon
+            );
+            if (!confirmed) return;
+
+            showLoadingScreen("核銷處理中...");
+            
+            const result = await callGAS({ 
+                action: 'redeem', userId: targetUserId, displayName: targetDisplayName, 
+                prizeName: targetPrizeName, adminId: userData.userId 
+            });
+
+            if (result.status === 'success') {
+                setTimeout(async () => {
+                    await showCustomAlert(`✅ 核銷成功！\n\n用戶：${targetDisplayName}\n獎品：${targetPrizeName}\n系統紀錄碼：${result.code}\n\n請現場發放實體禮品。`, "核銷成功", "🎉");
+                    await syncData(); 
+                }, 500);
+            } else {
+                showError(result.message);
+            }
+        }
+
+        async function handleScanSuccess(scannedCode) {
+            if (html5QrCode) await html5QrCode.stop().catch(e => console.log(e));
+            document.getElementById('scanner-modal').classList.add('hidden');
+            showLoadingScreen("驗證集點碼中...");
+            
+            const result = await callGAS({ 
+                action: 'addStamp', userId: userData.userId, 
+                displayName: userData.displayName, shopCode: scannedCode 
+            });
+            
+            if (result.status === 'success') {
+                await syncData();
+                if (navigator.vibrate) navigator.vibrate(200);
+            } else {
+                showError(result.message);
+            }
+        }
+
+        function closeModal() {
+            const content = document.getElementById('redeem-modal-content');
+            content.classList.replace('scale-100', 'scale-95');
+            content.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => document.getElementById('redeem-modal').classList.add('hidden'), 300);
+        }
+
+        function copyCode() {
+            const code = document.getElementById('redemption-code').innerText;
+            const el = document.createElement('textarea');
+            el.value = code; document.body.appendChild(el); el.select();
+            document.execCommand('copy'); document.body.removeChild(el);
+            showCustomAlert("序號已成功複製到剪貼簿！", "複製成功", "📋");
+        }
+
+        async function startScanning() {
+            document.getElementById('scanner-modal').classList.remove('hidden');
+            html5QrCode = new Html5Qrcode("reader");
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 20, qrbox: 260, aspectRatio: 1.0 }, 
+                    (text) => { 
+                        if (text.startsWith("REDEEM:::")) {
+                            handleAdminRedeem(text);
+                        } else {
+                            handleScanSuccess(text); 
+                        }
+                    }
+                );
+            } catch (err) {
+                showCustomAlert("相機開啟失敗，請確認手機設定中是否已授予 LINE / 網頁瀏覽器的相機使用權限。", "相機權限錯誤", "📷");
+                stopScanning();
+            }
+        }
+
+        function stopScanning() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => document.getElementById('scanner-modal').classList.add('hidden')).catch(() => document.getElementById('scanner-modal').classList.add('hidden'));
+            } else {
+                document.getElementById('scanner-modal').classList.add('hidden');
+            }
+        }
+
+        document.getElementById('start-scan').addEventListener('click', startScanning);
+        window.onload = init;
+    </script>
+</body>
+</html>

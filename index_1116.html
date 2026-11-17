@@ -14,7 +14,6 @@
 
       gtag('config', 'G-YJ9RJC2DRS');
     </script>
-  
     
     <!-- 引入核心庫 (新增 Noto Sans TC 字體) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -191,13 +190,13 @@
             <div class="glass-card rounded-[1.5rem] p-4 shadow-md relative overflow-hidden mt-1">
                 <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-[85%] h-4 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSIyMCI+PHBvbHlnb24gcG9pbnRzPSIwLDExIDIwLDAgNDAsMTEgMjAsMjIiIGZpbGw9IiNGRkQxREMiLz48L3N2Zz4=')] bg-repeat-x opacity-60"></div>
                 
-                <div class="flex justify-between items-end mb-5 mt-1 px-1">
+                <div class="flex justify-between items-end mb-4 mt-1 px-1">
                     <p class="text-[11px] font-bold text-[#6B5B95] flex items-center gap-1"><i data-lucide="award" class="w-3.5 h-3.5"></i> 集點進度</p>
                     <p id="points-status" class="text-sm font-bold text-[#4A4A4A] leading-none">讀取中...</p>
                 </div>
                 
-                <!-- ⭐ 精準控制寬度與間距，強制分為完美兩排 (4+3 排版) -->
-                <div id="stamp-grid" class="flex flex-wrap justify-center gap-y-5 gap-x-3 w-full max-w-[320px] mx-auto pb-2"></div>
+                <!-- ⭐ 強制鎖定最多兩排 (第一排 4 顆、第二排 3 顆，永不換成三排) -->
+                <div id="stamp-grid" class="flex flex-col items-center gap-y-3.5 w-full mx-auto pb-1"></div>
             </div>
 
             <!-- ⭐ 新增：LINE 社群確認與加贈福利區 (進站自動檢查是否已領取) -->
@@ -420,13 +419,13 @@
         let html5QrCode;
         let globalShopList = []; 
         let globalHistoryList = []; 
-        let hasClaimedCommunity = false; // ⭐ 記錄該帳號是否已領取過「加入社群 1 點」
+        let hasClaimedCommunity = false;
         
         let adminShopCode = '';
         let shopIssuedStamps = 0;
         let shopRedeemedCount = 0;
 
-        // ⭐ 讀取網址參數 (支援社群專屬連結或社群不定期活動連結，如 ?gift=A7CLUB 或 ?gift=EVENT1)
+        // 讀取網址參數 (如 ?gift=A7CLUB 或 ?gift=EVENT1)
         const urlParams = new URLSearchParams(window.location.search);
         const giftCode = urlParams.get('gift');
 
@@ -476,7 +475,7 @@
         async function init() {
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (!isMobile) {
-                const desktopMsg = `請使用手機掃描店內立牌 QR Code，<br>或由 A7ᴄʟᴜʙ 柒楽部 LINE 社群開啟集點哦！`;
+                const desktopMsg = `請使用手機掃描 QR Code 開啟集點哦！`;
                 showError(desktopMsg, "請使用手機開啟");
                 document.getElementById('retry-btn').classList.add('hidden');
                 return;
@@ -552,7 +551,7 @@
                 shopIssuedStamps = result.shopIssuedStamps || 0;
                 shopRedeemedCount = result.shopRedeemedCount || 0;
 
-                // ⭐ 檢查該用戶是否已經領取過加入社群贈點
+                // 檢查該用戶是否已經領取過加入社群贈點
                 const storageKey = `a7_gift_claimed_${userData.userId}`;
                 const hasHistoryGift = globalHistoryList.some(item => 
                     item.shopName === '社群專屬禮' || item.shopName === '加入社群贈點' || item.shopName === '入園禮' || item.shopName === '社群贈點'
@@ -563,7 +562,7 @@
                 }
 
                 renderUI(result.prizes || []);
-                renderCommunityCard(); // ⭐ 更新主畫面的 LINE 社群福利區狀態
+                renderCommunityCard();
                 renderAdminPanel(); 
                 renderMapShops(); 
                 renderHistoryList(); 
@@ -577,7 +576,6 @@
                 loadingEl.style.opacity = '0';
                 setTimeout(() => { loadingEl.style.display = 'none'; }, 400);
                 
-                // ⭐ 進站時的網址贈點處理與「確認是否加入社群」引導
                 if (isInit) {
                     if (giftCode) {
                         window.history.replaceState({}, document.title, window.location.pathname);
@@ -592,10 +590,9 @@
                             setTimeout(() => showCustomAlert("此活動代碼無效或活動已結束囉！", "活動提示", "🔔"), 500);
                         }
                     } else if (!hasClaimedCommunity) {
-                        // ⭐ 若客人掃描店內公開立牌進入，且系統檢查尚未領取過社群加贈 1 點，主動彈出詢問！
                         setTimeout(async () => {
                             const wantToJoin = await showCustomConfirm(
-                                "歡迎來到 A7 🅟OINTS 集點遊樂園！\n\n你還沒有領取【LINE 社群入群禮✨】嗎？\n現在加入「A7ᴄʟᴜʙ 柒楽部」，立即獲得 1 點！\n\n📢 社群不定期舉辦活動發放額外點數哦！",
+                                "歡迎來到 A7 🅟OINTS 集點遊樂園！\n\n你還沒有領取【LINE 社群入群禮✨】嗎？\n現在加入「A7ᴄʟᴜʙ 柒楽部」社群，立即獲得➊點！\n\n📢 社群不定期舉辦活動發放額外點數哦！",
                                 "🎁 加入社群免費贈 1 點",
                                 "🎡",
                                 "前往加入 (+1點)",
@@ -613,7 +610,6 @@
             }
         }
 
-        // ⭐ 更新首頁「LINE 社群福利區」卡片顯示狀態
         function renderCommunityCard() {
             const badge = document.getElementById('community-status-badge');
             const btn = document.getElementById('join-community-btn');
@@ -632,12 +628,9 @@
             }
         }
 
-        // ⭐ 點擊「加入社群領 1 點」處理邏輯 (開啟社群連結 + 後端防重複加 1 點)
         async function handleJoinCommunityBonus() {
-            // 先開啟 LINE 社群連結
             window.open(COMMUNITY_URL, '_blank');
 
-            // 如果已經領過，純粹跳轉至社群，不再呼叫加點
             if (hasClaimedCommunity) {
                 return;
             }
@@ -673,7 +666,6 @@
             }
         }
 
-        // ⭐ 開啟/關閉「社群不定期活動領點」輸入框
         function openPromoModal() {
             document.getElementById('promo-code-input').value = '';
             const modal = document.getElementById('promo-modal');
@@ -693,7 +685,6 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // ⭐ 送出社群不定期活動代碼
         async function submitPromoCode() {
             const inputCode = document.getElementById('promo-code-input').value.trim().toUpperCase();
             if (!inputCode) {
@@ -805,6 +796,7 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
+        // ⭐ 強制分為上下兩排 (上排 4 顆 flex-nowrap、下排 3 顆 flex-nowrap，絕不變成三排)
         function renderUI(prizes = []) {
             const grid = document.getElementById('stamp-grid');
             const stampIcons = ['🎠', '🎡', '🎪', '🎢', '🎫', '🍿', '🎈'];
@@ -812,17 +804,31 @@
             
             const displayPoints = currentPoints % MAX_STAMPS === 0 && currentPoints > 0 ? MAX_STAMPS : currentPoints % MAX_STAMPS;
             
+            const row1 = document.createElement('div');
+            row1.className = 'flex flex-nowrap justify-center items-center gap-2.5 sm:gap-3 w-full';
+            
+            const row2 = document.createElement('div');
+            row2.className = 'flex flex-nowrap justify-center items-center gap-2.5 sm:gap-3 w-full';
+
             for (let i = 0; i < MAX_STAMPS; i++) {
                 const slot = document.createElement('div');
                 if (i < displayPoints) {
-                    slot.className = 'w-[68px] h-[68px] shrink-0 rounded-full flex items-center justify-center relative bg-white shadow-md border-[3px] border-[#FFD1DC]';
-                    slot.innerHTML = `<span class="text-4xl animate-bounce-pop">${stampIcons[i]}</span>`;
+                    slot.className = 'w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] shrink-0 rounded-full flex items-center justify-center relative bg-white shadow-md border-[3px] border-[#FFD1DC]';
+                    slot.innerHTML = `<span class="text-3xl sm:text-4xl animate-bounce-pop">${stampIcons[i]}</span>`;
                 } else {
-                    slot.className = 'w-[68px] h-[68px] shrink-0 rounded-full flex items-center justify-center relative transition-all border-2 border-dashed border-gray-300 bg-gray-50/80';
-                    slot.innerHTML = `<span class="text-gray-300 font-black text-[22px]">${i + 1}</span>`;
+                    slot.className = 'w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] shrink-0 rounded-full flex items-center justify-center relative transition-all border-2 border-dashed border-gray-300 bg-gray-50/80';
+                    slot.innerHTML = `<span class="text-gray-300 font-black text-[20px] sm:text-[22px]">${i + 1}</span>`;
                 }
-                grid.appendChild(slot);
+
+                if (i < 4) {
+                    row1.appendChild(slot);
+                } else {
+                    row2.appendChild(slot);
+                }
             }
+
+            grid.appendChild(row1);
+            grid.appendChild(row2);
 
             document.getElementById('points-status').innerHTML = `擁有 <span class="text-[#FF8C94] text-base font-black">${currentPoints}</span> 點`;
 
@@ -872,7 +878,6 @@
             lucide.createIcons();
         }
 
-        // ⭐ 完全保留您現有的店家專屬 QR Code 邏輯
         function showShopQrCode() {
             if (!adminShopCode) return;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&color=6B5B95&data=${encodeURIComponent(adminShopCode)}`;
